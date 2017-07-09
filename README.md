@@ -1,68 +1,59 @@
-**[This code belongs to the "Implementing a CNN for Text Classification in Tensorflow" blog post.](http://www.wildml.com/2015/12/implementing-a-cnn-for-text-classification-in-tensorflow/)**
+## Text Classification Using a Convolutional Neural Network in Tensorflow
 
-It is slightly simplified implementation of Kim's [Convolutional Neural Networks for Sentence Classification](http://arxiv.org/abs/1408.5882) paper in Tensorflow.
+This branch of cnn-text-classsification-tf use [fassttext](https://github.com/facebookresearch/fastText/blob/master/pretrained-vectors.md) pre-trained word vectors.
 
 ## Requirements
 
 - Python 3
 - Tensorflow > 0.12
 - Numpy
+- [gensim](https://radimrehurek.com/gensim/)
 
 ## Training
 
-Print parameters:
+The steps for training CNN using fasttext are as follows.
+
 
 ```bash
-./train.py --help
-```
+# Download pre-trained fasttext word vectors
+$ wget https://s3-us-west-1.amazonaws.com/fasttext-vectors/wiki.en.vec
 
-```
-optional arguments:
-  -h, --help            show this help message and exit
-  --embedding_dim EMBEDDING_DIM
-                        Dimensionality of character embedding (default: 128)
-  --filter_sizes FILTER_SIZES
-                        Comma-separated filter sizes (default: '3,4,5')
-  --num_filters NUM_FILTERS
-                        Number of filters per filter size (default: 128)
-  --l2_reg_lambda L2_REG_LAMBDA
-                        L2 regularizaion lambda (default: 0.0)
-  --dropout_keep_prob DROPOUT_KEEP_PROB
-                        Dropout keep probability (default: 0.5)
-  --batch_size BATCH_SIZE
-                        Batch Size (default: 64)
-  --num_epochs NUM_EPOCHS
-                        Number of training epochs (default: 100)
-  --evaluate_every EVALUATE_EVERY
-                        Evaluate model on dev set after this many steps
-                        (default: 100)
-  --checkpoint_every CHECKPOINT_EVERY
-                        Save model after this many steps (default: 100)
-  --allow_soft_placement ALLOW_SOFT_PLACEMENT
-                        Allow device soft device placement
-  --noallow_soft_placement
-  --log_device_placement LOG_DEVICE_PLACEMENT
-                        Log placement of ops on devices
-  --nolog_device_placement
+# Generate fasttext_vocab_en.dat, fasttext_embedding_en.npy
+$ python util_fasttext.py
 
-```
+# Train a CNN using the pre-trained fasttext word vectors
+$ python train.py --pre_trained
 
-Train:
+# The logs around step 1000 are as follows.
+...
+2017-07-08T13:12:27.329179: step 990, loss 0.178512, acc 0.953125
+2017-07-08T13:12:28.902815: step 991, loss 0.133091, acc 0.984375
+2017-07-08T13:12:30.473521: step 992, loss 0.148561, acc 0.984375
+2017-07-08T13:12:32.041047: step 993, loss 0.21213, acc 0.90625
+2017-07-08T13:12:33.617257: step 994, loss 0.230192, acc 0.9375
+2017-07-08T13:12:35.223648: step 995, loss 0.222954, acc 0.9375
+2017-07-08T13:12:36.822623: step 996, loss 0.161116, acc 0.96875
+2017-07-08T13:12:38.437168: step 997, loss 0.224385, acc 0.921875
+2017-07-08T13:12:40.073519: step 998, loss 0.258734, acc 0.921875
+2017-07-08T13:12:41.649018: step 999, loss 0.207504, acc 0.953125
+2017-07-08T13:12:43.215527: step 1000, loss 0.211571, acc 0.921875
 
-```bash
-./train.py
-```
+Evaluation:
+2017-07-08T13:12:44.823491: step 1000, loss 0.647888, acc 0.681
+``` 
 
 ## Evaluating
 
 ```bash
-./eval.py --eval_train --checkpoint_dir="./runs/1459637919/checkpoints/"
+# Create a symbolic link to the directory that have trained cnn model you want to evaluate.
+# You can also copy all files to trained_cnn directory, but this need more disk spaces.
+$ ln -s trained_cnn /path/to/directory/trained_cnn_model
+
+# Evaluate on new data using the trained CNN with fasttext word vectors.
+$ python eval.py --pre_trained
 ```
 
-Replace the checkpoint dir with the output from the training. To use your own data, change the `eval.py` script to load your data.
+## Reference
 
-
-## References
-
-- [Convolutional Neural Networks for Sentence Classification](http://arxiv.org/abs/1408.5882)
-- [A Sensitivity Analysis of (and Practitioners' Guide to) Convolutional Neural Networks for Sentence Classification](http://arxiv.org/abs/1510.03820)
+* https://ireneli.eu/2017/01/17/tensorflow-07-word-embeddings-2-loading-pre-trained-vectors/
+* https://blog.manash.me/how-to-use-pre-trained-word-vectors-from-facebooks-fasttext-a71e6d55f27

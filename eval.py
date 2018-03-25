@@ -97,5 +97,6 @@ def main(argv):
     with open(out_path, 'w') as f:
         csv.writer(f).writerows(predictions_human_readable)
 
+
 if __name__ == "__main__":
   tf.app.run()
